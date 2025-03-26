@@ -1,0 +1,72 @@
+Chnage the visual design wit the same functionaltiy. Some pointers
+Visual Design Language Template (Based on TextFX):
+
+Overall Aesthetic:
+
+Minimalist and clean.
+
+Modern and tech-focused.
+
+Slightly experimental and abstract.
+
+Color Palette:
+
+Dominant Theme: Dark Mode.
+
+Backgrounds: Deep, dark colors – primarily blacks, very dark grays, or deep saturated blues/purples.
+
+Text: High contrast, typically white or light gray for maximum readability against the dark background.
+
+Accents: Bright, vibrant, almost neon-like colors used sparingly. Think electric cyan, magenta, bright yellow, lime green. These are used for:
+
+Interactive elements (buttons, sliders, links).
+
+Highlighting active states or selected items.
+
+Icons.
+
+Subtle background gradients or graphic elements.
+
+Potentially unique accent colors defining individual tool sections.
+
+Typography:
+
+Font Style: Clean, modern sans-serif fonts. Legible and neutral.
+
+Hierarchy: Clear distinction between different text elements:
+
+Large, prominent headings for tool names or section titles.
+
+Readable body text size for descriptions, input fields, and output results.
+
+Possibly smaller text for secondary information or labels.
+
+Weight & Case: Primarily uses regular font weights, possibly bold for emphasis or headings. Sentence case or title case used appropriately.
+
+Layout & Spacing:
+
+Structure: Simple, often single-column or straightforward two-column layouts, especially on tool pages. Focuses user attention on the task flow (input -> controls -> output).
+
+Grid/Cards: Homepage or tool selection might use a grid or card-based layout to present the different options clearly.
+
+Whitespace: Generous use of negative space (padding and margins) to prevent clutter and improve focus. Creates a feeling of spaciousness despite the dark theme.
+
+Responsiveness: Layout adapts fluidly to different screen sizes, maintaining clarity and usability on mobile and desktop.
+
+Graphics & Imagery:
+
+Iconography: Simple, symbolic line icons, often using the bright accent colors. Each icon visually represents the function of a tool.
+
+Geometric Elements: Use of abstract geometric shapes, lines, or subtle patterns, sometimes animated gently in the background (e.g., flowing lines, soft particle effects).
+
+Photography/Illustrations: Minimal to no use of traditional photography or complex illustrations. The focus is on typography, color, and abstract graphics.
+
+Dividers: Simple lines or subtle changes in background color/texture to separate sections.
+
+Interaction Cues:
+
+Hover States: Clear visual feedback when hovering over interactive elements (e.g., color change, slight scaling, background highlight).
+
+Focus States: Visible outlines or style changes for focused elements (important for accessibility).
+
+Loading Indicators: Simple animations (spinners, pulsing effects) using accent colors during processing.
