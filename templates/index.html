@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .code-area {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .key-info {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #e2f0ff;
+        }
+        .copy-btn {
+            margin-left: 10px;
+        }
+        .format-btn {
+            margin-right: 5px;
+        }
+        #key-format-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f7f7f7;
+            border: 1px solid #e0e0e0;
+        }
+        .format-example {
+            font-size: 0.8rem;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        #key-format-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        #key-format-tabs .nav-link {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+        }
+        .example-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">JWT Generator</h1>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        {% if key_info %}
+        <div class="key-info">
+            <h4>Key Information</h4>
+            <ul>
+                <li><strong>Format:</strong> {{ key_info.format }}</li>
+                <li><strong>Encrypted:</strong> {{ key_info.encrypted }}</li>
+                {% if key_info.algorithm %}
+                <li><strong>Encryption Algorithm:</strong> {{ key_info.algorithm }}</li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% if bearer_token %}
+        <div class="mt-4">
+            <h3>Generated Bearer Token</h3>
+            <div class="d-flex align-items-center">
+                <div class="code-area" id="bearer-token">{{ bearer_token }}</div>
+                <button class="btn btn-secondary copy-btn" onclick="copyToClipboard('bearer-token')">Copy</button>
+            </div>
+            
+            <h4 class="mt-4">Payload</h4>
+            <div class="code-area">{{ payload_display }}</div>
+            
+            {% if headers_display %}
+            <h4 class="mt-4">Headers</h4>
+            <div class="code-area">{{ headers_display }}</div>
+            {% endif %}
+        </div>
+        <hr class="my-5">
+        {% endif %}
+        
+        <form method="post" action="/" id="jwt-form">
+            <div class="mb-3">
+                <label for="private-key" class="form-label">Private Key (PKCS#1 or PKCS#8 format)</label>
+                <textarea class="form-control" id="private-key" name="private_key" rows="8" required></textarea>
+                <div class="d-flex justify-content-end mt-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary format-btn" id="format-key-btn">Format Key</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#key-format-section">Key Helper</button>
+                </div>
+            </div>
+            
+            <div class="collapse mb-3" id="key-format-section">
+                <div class="card card-body">
+                    <ul class="nav nav-tabs" id="key-format-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="formatter-tab" data-bs-toggle="tab" href="#formatter" role="tab">Format Key</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="examples-tab" data-bs-toggle="tab" href="#examples" role="tab">Key Format Examples</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="formatter" role="tabpanel">
+                            <h5 class="mt-3">Key Formatter</h5>
+                            <p class="small">Paste your unformatted key here to properly format it with line breaks</p>
+                            <textarea class="form-control mb-2" id="raw-key-input" rows="4" placeholder="Paste your raw key here (with or without \n)"></textarea>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="format-raw-key">Format</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" id="clear-raw-key">Clear</button>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-success" id="apply-formatted-key">Apply to Form</button>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="examples" role="tabpanel">
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6>PKCS#1 Format (RSA)</h6>
+                                    <div class="code-area format-example">-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA1L9ajz...
+...
+tPlTp/XJOi/4OlnNqIRLcw==
+-----END RSA PRIVATE KEY-----</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>PKCS#8 Format</h6>
+                                    <div class="code-area format-example">-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w...
+...
+nXr7yt/uXRcQjGV4Mc4=
+-----END PRIVATE KEY-----</div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6>Encrypted PKCS#1</h6>
+                                    <div class="code-area format-example">-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: DES-EDE3-CBC,71D4D8EF5275F191
+
+nVTOc4yaIxGbOC/LK/nG...
+...
+-----END RSA PRIVATE KEY-----</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Escaped Newlines (needs formatting)</h6>
+                                    <div class="code-area format-example">-----BEGIN RSA PRIVATE KEY-----\nProc-Type: 4,ENCRYPTED\nDEK-Info: DES-EDE3-CBC,71D4D8EF\n...\n-----END RSA PRIVATE KEY-----\n</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">Password (if the key is encrypted)</label>
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+            
+            <div class="mb-3">
+                <label for="payload" class="form-label">JWT Payload (JSON)</label>
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="default-payload-btn">Use Default Payload</button>
+                </div>
+                <textarea class="form-control" id="payload" name="payload" rows="6">{"sub": "1234567890", "name": "John Doe", "iat": 1516239022}</textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="headers" class="form-label">JWT Headers (JSON) <small class="text-muted">- Optional</small></label>
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="default-headers-btn">Use Default Headers</button>
+                </div>
+                <textarea class="form-control" id="headers" name="headers" rows="3">{"kid": "key-id-12345", "typ": "JWT"}</textarea>
+                <div class="form-text">Custom headers to include in the JWT. Leave empty to use defaults.</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="expiry" class="form-label">Token Expiry (minutes)</label>
+                <input type="number" class="form-control" id="expiry" name="expiry" value="60" min="1">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Generate JWT</button>
+        </form>
+    </div>
+    
+    <script>
+        // Store form values in localStorage
+        function saveFormValues() {
+            localStorage.setItem('jwtPrivateKey', document.getElementById('private-key').value);
+            localStorage.setItem('jwtPassword', document.getElementById('password').value);
+            localStorage.setItem('jwtPayload', document.getElementById('payload').value);
+            localStorage.setItem('jwtHeaders', document.getElementById('headers').value);
+            localStorage.setItem('jwtExpiry', document.getElementById('expiry').value);
+        }
+        
+        // Load stored form values
+        function loadFormValues() {
+            const privateKey = localStorage.getItem('jwtPrivateKey');
+            if (privateKey) document.getElementById('private-key').value = privateKey;
+            
+            const password = localStorage.getItem('jwtPassword');
+            if (password) document.getElementById('password').value = password;
+            
+            const payload = localStorage.getItem('jwtPayload');
+            if (payload) document.getElementById('payload').value = payload;
+            
+            const headers = localStorage.getItem('jwtHeaders');
+            if (headers) document.getElementById('headers').value = headers;
+            
+            const expiry = localStorage.getItem('jwtExpiry');
+            if (expiry) document.getElementById('expiry').value = expiry;
+        }
+        
+        // Load stored values on page load
+        document.addEventListener('DOMContentLoaded', loadFormValues);
+        
+        // Save form values before submission
+        document.getElementById('jwt-form').addEventListener('submit', saveFormValues);
+        
+        // Default payload and headers
+        const defaultPayload = {
+            "sub": "freshbots",
+            "product": "freshbots",
+            "iss": "fd-iam-service",
+            "type": "client",
+            "iat": Math.floor(Date.now() / 1000)
+        };
+        
+        const defaultHeaders = {
+            "kid": "authz_1",
+            "typ": "JWT",
+            "alg": "RS256"
+        };
+        
+        // Set default payload button action
+        document.getElementById('default-payload-btn').addEventListener('click', function() {
+            const payloadInput = document.getElementById('payload');
+            // Update the iat to current time
+            defaultPayload.iat = Math.floor(Date.now() / 1000);
+            payloadInput.value = JSON.stringify(defaultPayload, null, 2);
+            payloadInput.classList.remove('is-invalid');
+        });
+        
+        // Set default headers button action
+        document.getElementById('default-headers-btn').addEventListener('click', function() {
+            const headersInput = document.getElementById('headers');
+            headersInput.value = JSON.stringify(defaultHeaders, null, 2);
+            headersInput.classList.remove('is-invalid');
+        });
+        
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const textToCopy = element.innerText;
+            
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                // Success feedback
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                setTimeout(function() {
+                    btn.innerText = originalText;
+                }, 2000);
+            }, function() {
+                alert("Failed to copy token to clipboard");
+            });
+        }
+        
+        // Add JSON validation for the payload field
+        document.getElementById('payload').addEventListener('blur', function() {
+            try {
+                const payload = JSON.parse(this.value);
+                this.value = JSON.stringify(payload, null, 2);
+                this.classList.remove('is-invalid');
+            } catch (e) {
+                this.classList.add('is-invalid');
+            }
+        });
+        
+        // Add JSON validation for the headers field
+        document.getElementById('headers').addEventListener('blur', function() {
+            // Allow empty headers
+            if (!this.value.trim()) {
+                this.classList.remove('is-invalid');
+                return;
+            }
+            
+            try {
+                const headers = JSON.parse(this.value);
+                this.value = JSON.stringify(headers, null, 2);
+                this.classList.remove('is-invalid');
+            } catch (e) {
+                this.classList.add('is-invalid');
+            }
+        });
+        
+        // Key formatter functionality
+        document.getElementById('format-raw-key').addEventListener('click', function() {
+            const rawKey = document.getElementById('raw-key-input').value;
+            if (!rawKey) return;
+            
+            // Replace literal \n with actual line breaks and clean up any excess whitespace
+            let formattedKey = rawKey
+                .replace(/\\n/g, '\n')
+                .replace(/\s+-----/g, '-----')
+                .replace(/-----\s+/g, '-----');
+            
+            // Ensure there's a line break after BEGIN and before END markers
+            formattedKey = formattedKey
+                .replace(/(-----BEGIN [^-]+-----)/, '$1\n')
+                .replace(/([^\n])(-----END)/, '$1\n$2');
+                
+            document.getElementById('raw-key-input').value = formattedKey;
+        });
+        
+        document.getElementById('clear-raw-key').addEventListener('click', function() {
+            document.getElementById('raw-key-input').value = '';
+        });
+        
+        document.getElementById('apply-formatted-key').addEventListener('click', function() {
+            const formattedKey = document.getElementById('raw-key-input').value;
+            if (formattedKey) {
+                document.getElementById('private-key').value = formattedKey;
+                bootstrap.Collapse.getInstance(document.getElementById('key-format-section')).hide();
+            }
+        });
+        
+        document.getElementById('format-key-btn').addEventListener('click', function() {
+            const privateKey = document.getElementById('private-key').value;
+            if (!privateKey) return;
+            
+            // Format the key in the main form directly
+            let formattedKey = privateKey
+                .replace(/\\n/g, '\n')
+                .replace(/\s+-----/g, '-----')
+                .replace(/-----\s+/g, '-----');
+            
+            formattedKey = formattedKey
+                .replace(/(-----BEGIN [^-]+-----)/, '$1\n')
+                .replace(/([^\n])(-----END)/, '$1\n$2');
+                
+            document.getElementById('private-key').value = formattedKey;
+        });
+    </script>
+    
+    <!-- Add Bootstrap JS for the collapse functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
